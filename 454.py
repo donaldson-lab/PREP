@@ -3,8 +3,6 @@ Created on Apr 11, 2011
 
 @author: virushunter2
 '''
-
-import os
 import wx
 from Bio import SeqIO
 

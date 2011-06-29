@@ -4,7 +4,6 @@ Created on Jun 8, 2010
 @author: virushunter2
 '''
 import sys
-from Bio.Seq import Seq
 from Bio import SeqIO
 
 class contig():

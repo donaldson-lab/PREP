@@ -1,5 +1,5 @@
 import sys, os, re
-import pp
+import pp #@UnresolvedImport
 from Bio.Seq import Seq
 from Bio import SeqIO
 
@@ -32,8 +32,6 @@ class Barcode:
         current_dir = directory
 
         sequence_list = []
-        barcode_number = 0
-        barcode = []
         os.chdir(current_dir)
         seq_number = 0
 
@@ -83,7 +81,7 @@ class Barcode:
             r_pattern = re.compile(start_pattern % {'first' :r_barcode[0], 'second': r_barcode[1], 'third': r_barcode[2]} + r_core_pattern + end_pattern % {'third_last': r_barcode[len(r_barcode)-3], 'penultimate':r_barcode[len(r_barcode)-2], 'last':r_barcode[len(r_barcode)-1]})
         else:
             pattern = re.compile(bcode)
-            r_pattern = re.compile(r_bcode)
+            r_pattern = re.compile(r_barcode)
 
         target = str(seq)
         g = re.split(pattern, target)
