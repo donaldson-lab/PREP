@@ -1,1 +1,77 @@
-This is the README for PREP
+Launch PREP by simply double-clicking on the icon.
+
+PREP contains two panels for processing Next Generation sequencing data.  The panel seen upon opening the program is designed for trimming barcodes from sequences.  The other panel, designated the "File Processing" panel can be found by clicking the icon of the blue folder on the toolbar.
+
+The "Barcode Trimming Panel":
+
+PREP searches for the barcodes provided by the user in the list of sequences and pools the sequences by barcode into files for each barcode  after removing the barcodes.  PREP can identify barcodes that have been truncated or have errors (mismatches) that occurred during the sequencing process.
+
+Select Sequence File:
+	Select FASTA file using FileDialog Browser
+
+Select Barcode File:
+	Select barcode file using FileDialog Browser.  See section on the barcode file for formatting of file.
+
+FASTA filepath:
+	Specify the filepath of the sequence file.  Use the "Select Sequence File" button to select file using FileDialog Browser
+
+Barcode filepath:
+	Specify the filepath of the barcode file.  Use the "Select Barcode File" button to select file using FileDialog Browser.  See section on the barcode file for formatting of file.  If this field is left blank, PREP will use any barcodes selected from the barcodes box on the right to generate a barcode file.  Barcodes can be added to the barcode box using the 'Add Barcode to Database' button.
+
+Add Barcode to Database:
+	Launches a popup box allowing to add a barcode to the database to be saved.  The Barcode Sequence is typed in the first box and the barcode name in the second.  Click OK to store.
+
+Output location:
+	Specify the filepath for the pooled barcodes after trimming.
+
+Mismatches:
+	Specify how many mismatched nucleotides are allowed when looking for barcodes in the sequences
+
+Truncation:
+	Specify how many nucleotides can be truncated from the end of the barcode when searching for a match in the sequences
+
+Trim:
+	Specify how many additional nucleotides should be trimmed off of the sequence in addition to the barcodes
+
+Minimum Sequence Length (MSL):
+	When trimming any sequences after trimming that are shorter than the MSL will be discarded.
+
+Remove Barcodes Checkbox:
+	If unchecked, sequences will be pooled by barcode, but the barcodes will not be removed from the sequences
+
+The Barcode File:
+
+The format of the Barcode file is a tab-delimited file of barcode sequences and their respective names.  Each line of the file contains a barcode sequence, a tab ('\t') separating the sequence from its identifying name, which is then followed by a return ('\n').  Reverse barcodes should have the same name with an 'r' appended if the sequences are to be pooled together.
+
+As an example:
+
+CGTAGTACACTCTAGAGCACTA	BC004	
+TAGTGCTCTAGAGTGTACTACG	BC004r
+CGAGCTCTATACGTGTAGTCTC	BC009
+GAGACTACACGTATAGAGCTCG	BC009r
+
+
+
+The "File Processing" Panel:
+
+The "File Processing" Panel is used for converting between sequence formats and trimming sequences based off of quality data. Users can return to the "Barcode Trimming" panel by clicking on the barcode icon on the toolbar.  The panel contains four buttons.  Their functions are described below:
+
+Convert Illumina:
+	Converts Illumina files to FASTA format.
+
+FastQ Sanger Trim:
+	Trim Sanger style FASTQ files using PHRED scores with ASCII offset 33, allowing PHRED scores from 0 to 93. Trim nucleotides with PHRED scores below trimming threshold.
+
+Illumina 1.5+ Trim:
+	Trims Illumina 1.5+ files based on quality scores.
+
+454 Trim:
+	Trim 454 data based off of quality file: select quality file first, then sequence file.
+
+There are also two input boxes allowing users control over some of the parameters used while trimming:
+
+Trimming Threshold:
+	Allows the user to specify the PHRED score below which nucleotides will be trimmed.
+
+Minimum Sequence Length (MSL):
+	When trimming any sequences after trimming that are shorter than the MSL will be discarded. 
