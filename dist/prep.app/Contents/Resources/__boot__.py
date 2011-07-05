@@ -184,4 +184,4 @@ def _run(*scripts):
         execfile(path, globals(), globals())
 
 
-_run('prep.py')
+_run('PREP.py')
