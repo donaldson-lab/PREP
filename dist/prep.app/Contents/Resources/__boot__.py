@@ -1,16 +1,43 @@
+import sys
+import traceback
+
+
+if sys.version_info[0] == 3:
+    def B(value):
+        return value.encode('ascii')
+else:
+    def B(value):
+        return value
+
+kAEInternetSuite=B('gurl')
+kAEISGetURL=B('gurl')
+kCoreEventClass=B('aevt')
+kAEOpenApplication=B('oapp')
+kAEOpenDocuments=B('odoc')
+keyDirectObject=B('----')
+
+typeAEList=B('list')
+typeChar=B('TEXT')
+typeAlias=B('alis')
+
+highLevelEventMask=1024 
+kHighLevelEvent=23
+
+import ctypes
+
+from Carbon import AE
+from Carbon import Evt
+from Carbon import File
+
+carbon = ctypes.CDLL('/System/Library/Carbon.framework/Carbon')
+print carbon.RunCurrentEventLoop
+
+
 def _get_argvemulator():
     """argvemulator - create sys.argv from OSA events. Used by applets that
     want unix-style arguments.
     """
 
-    import sys
-    import traceback
-    from Carbon import AE
-    from Carbon.AppleEvents import kCoreEventClass, kAEOpenApplication, \
-        kAEOpenDocuments, keyDirectObject, typeAEList, typeAlias
-    from Carbon import Evt
-    from Carbon import File
-    from Carbon.Events import highLevelEventMask, kHighLevelEvent
 
     class ArgvCollector:
 
@@ -23,10 +50,18 @@ def _get_argvemulator():
                 self.__runapp)
             AE.AEInstallEventHandler(kCoreEventClass, kAEOpenDocuments,
                 self.__openfiles)
+            AE.AEInstallEventHandler(kAEInternetSuite, kAEISGetURL,
+                    self.__geturl)
+
+            # The definition of kAEInternetSuite seems to be wrong,
+            # the lines below ensures that the code will work anyway.
+            AE.AEInstallEventHandler('GURL', 'GURL', self.__geturl)
 
         def close(self):
             AE.AERemoveEventHandler(kCoreEventClass, kAEOpenApplication)
             AE.AERemoveEventHandler(kCoreEventClass, kAEOpenDocuments)
+            AE.AERemoveEventHandler(kAEInternetSuite, kAEISGetURL)
+            AE.AERemoveEventHandler('GURL', 'GURL')
 
         def mainloop(self, mask = highLevelEventMask, timeout = 1*60):
             # Note: this is not the right way to run an event loop in OSX or
@@ -86,6 +121,21 @@ def _get_argvemulator():
                     sys.argv.append(pathname)
             except Exception, e:
                 print "argvemulator.py warning: can't unpack an open document event"
+                import traceback
+                traceback.print_exc()
+
+            self._quit()
+
+        def __geturl(self, requestevent, replyevent):
+            try:
+                listdesc = requestevent.AEGetParamDesc(keyDirectObject, typeAEList)
+                for i in range(listdesc.AECountItems()):
+                    desc = listdesc.AEGetNthDesc(i+1, typeChar)[1]
+                    #url = desc.data.decode('utf8')
+                    url = desc.data
+                    sys.argv.append(url)
+            except Exception, e:
+                print "argvemulator.py warning: can't unpack a GetURL event"
                 import traceback
                 traceback.print_exc()
 

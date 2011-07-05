@@ -8,7 +8,7 @@ Usage:
 from setuptools import setup
 
 APP = ['prep.py']
-DATA_FILES = []
+DATA_FILES = ['barcode.png', 'folder.png']
 OPTIONS = {'argv_emulation': True}
 
 setup(

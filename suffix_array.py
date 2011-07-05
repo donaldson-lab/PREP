@@ -4,8 +4,8 @@ Created on Jun 11, 2010
 @author: virushunter2
 '''
 import re, sys, os
-from Bio.Seq import Seq
 from Bio import SeqIO
+import wx
 
 class Barcode:
     def __init__self(self, filename=[]):
@@ -52,13 +52,14 @@ class SuffixArray():
         i = 0
         sa = range(len(sequence))
         sa.sort(key=lambda a: sequence[a:])
-        for item in sa:
+        for item in sa: #@UnusedVariable
             ta.append(sequence[sa[i]:])
             i += 1
         return ta
 
     def findPatterns(self, fasta_file, patterns, truncation, mismatches, trim, index, remove, min_length):
         num_seqs = 0
+        progressMax = 0
         output = {}
         output['problem_barcodes'] = []
         output['no_barcode'] = []
@@ -66,16 +67,25 @@ class SuffixArray():
         for pattern in patterns.values():
             filename = inv_map[pattern]
             output[filename.rstrip('r')] = []
+        with open(fasta_file) as f:
+            for rec in SeqIO.parse(f, "fasta"):
+                progressMax += 1
+        app = wx.PySimpleApp() #@UnusedVariable
+        dialog = wx.ProgressDialog("Barcode Trimming","Time remaining :", progressMax, style=wx.PD_ELAPSED_TIME | wx.PD_REMAINING_TIME)
         with open(fasta_file) as in_handle:
             for rec in SeqIO.parse(in_handle, "fasta"):
                 results = []
                 starts = []
                 ends = []
                 num_seqs += 1
-                print num_seqs
+                #print num_seqs
+                if num_seqs < progressMax:
+                    dialog.Update(num_seqs)
+                else:
+                    dialog.Destroy()
                 sequence = str(rec.seq)
                 ta = self.create_array(sequence)
-                n = len(ta)
+                n = len(ta) #@UnusedVariable
                 for pattern in patterns.values():
                     filename = inv_map[pattern]
                     a = self.findPattern(sequence, ta, pattern, filename, truncation, mismatches, index)
@@ -187,7 +197,7 @@ class SuffixArray():
                 for seq in dict[key]:
                     num += 1
                     f.write('>' + str(key) + '.' + str(num) + '\n' + seq)
-
+                    
 def main(fasta_file, barcode_file, mismatches, truncation, trim, output, remove, min_length):
     SA = SuffixArray()
     B = Barcode()
@@ -197,7 +207,7 @@ def main(fasta_file, barcode_file, mismatches, truncation, trim, output, remove,
     a = SA.findPatterns(sequence, patterns, truncation, mismatches, trim, index, remove, min_length)
     os.chdir(output)
     SA.writeOutput(a)
-    print "Complete"
+    
 if __name__ == "__main__":
     main(*sys.argv[1:])
     

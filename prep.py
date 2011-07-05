@@ -1,7 +1,7 @@
 import wx
 import os
 import fourfivefour
-import suffix_array
+import suffix_array #@UnresolvedImport
 import quality_trim
 #import fastq_quality
 import illumina_quality
@@ -199,7 +199,7 @@ class MainFrame(wx.Frame):
             name_list = []
             connection = sqlite3.connect('barcodes.db')
             cursor = connection.cursor()
-            cursor.execute('''SELECT sequence, barcode_name, from barcodes''')
+            cursor.execute('''SELECT sequence, barcode_name FROM barcodes''')
             for row in cursor:
                 name_list.append(row[1])
                 names[row[1]] = row[0]
@@ -207,12 +207,12 @@ class MainFrame(wx.Frame):
             name_list = sorted(name_list)
             file = open('tmp_barcodes.txt', 'w')
             for num in self.barcode_listbox.GetSelections():
-                file.write(str(sorted_names[num][0]) + '\t' + str(name_list[num]) + '\n')
+                file.write(str(sorted_names[num]) + '\t' + str(name_list[num]) + '\n')
             file.close()
-            barcode_file = os.getcwd + '/tmp_barcodes.txt'
+            barcode_file = os.getcwd() + '/tmp_barcodes.txt'
             self.barcode_path.SetValue(barcode_file)
-            suffix_array.main(str(self.fasta_path.GetValue()), str(self.barcode_path.GetValue()), int(self.mismatches.GetValue()), int(self.truncation.GetValue()), int(self.trim.GetValue()), str(self.output_path.GetValue()), int(self.remove.GetValue()),int(self.min_length.GetValue()))
-            os.remove('/tmp_barcodes.txt')
+            suffix_array.main(str(self.fasta_path.GetValue()), str(self.barcode_path.GetValue()), int(self.mismatches.GetValue()), int(self.truncation.GetValue()), int(self.trim.GetValue()), str(self.output_path.GetValue()), int(self.remove.GetValue()), int(self.min_length.GetValue()))
+            os.remove('tmp_barcodes.txt')
 
     def sorted_dict_values(self, adict):
         items = adict.items()
