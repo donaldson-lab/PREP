@@ -192,7 +192,7 @@ class MainFrame(wx.Frame):
     def trim_barcodes(self, event):
         if str(self.barcode_path.GetValue()) != '':
             try:
-                suffix_array.main(str(self.fasta_path.GetValue()), str(self.barcode_path.GetValue()), int(self.mismatches.GetValue()), int(self.truncation.GetValue()), int(self.trim.GetValue()), str(self.output_path.GetValue()), int(self.remove.GetValue()), int(self.min_length.GetValue()))
+                suffix_array.main(str(self.fasta_path.GetValue()), str(self.barcode_path.GetValue()), int(self.mismatches.GetValue()), int(self.truncation.GetValue()), int(self.trim.GetValue()), str(self.output_path.GetValue()), int(self.remove.GetValue()), int(self.min_length.GetValue()), self.barcode_listbox)
             except IOError:
                 dlg = wx.MessageDialog(None, "Please enter a valid filepath", "Invalid Filepath")
                 dlg.ShowModal()
@@ -216,7 +216,7 @@ class MainFrame(wx.Frame):
             orig_dir = os.getcwd()
             self.barcode_path.SetValue(barcode_file)
             try:
-                suffix_array.main(str(self.fasta_path.GetValue()), str(self.barcode_path.GetValue()), int(self.mismatches.GetValue()), int(self.truncation.GetValue()), int(self.trim.GetValue()), str(self.output_path.GetValue()), int(self.remove.GetValue()), int(self.min_length.GetValue()))
+                suffix_array.main(str(self.fasta_path.GetValue()), str(self.barcode_path.GetValue()), int(self.mismatches.GetValue()), int(self.truncation.GetValue()), int(self.trim.GetValue()), str(self.output_path.GetValue()), int(self.remove.GetValue()), int(self.min_length.GetValue()), self.barcode_listbox)
             except IOError:
                 dlg = wx.MessageDialog(None, "Invalid Filepath")
                 dlg.ShoModal()
