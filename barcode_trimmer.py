@@ -30,20 +30,17 @@ class Barcode:
 
     def match_barcodes(self, seq, target, mismatches, trunc, trim, directory, remove):
         current_dir = directory
-
         sequence_list = []
         os.chdir(current_dir)
         seq_number = 0
-
         pattern = target[0]
         bcode = pattern
         barcode = list(bcode)
         r_barcode = list(str(Seq(pattern).reverse_complement()))
         b_dict = {}
-        f = target[1]
-        f = f.split('\t')[0]
-        core_pattern = ""
-        r_core_pattern = ""
+        f = target[1].split('\t')[0]
+        core_pattern, r_core_pattern = "", ""
+        
         if trunc == 1:
             start_pattern = '(%(first)s?)'
             end_pattern = '(%last)s)?'
@@ -119,7 +116,6 @@ class Barcode:
     def hamming_distance(self, s1, s2):
         return sum(ch1 != ch2 for ch1, ch2 in zip(s1, s2))  
   
-    
     def trim_adaptor(self, seq, adaptor, mismatches, trim):
         barcode = Barcode()
         distance = barcode.hamming_distance(seq, adaptor)
@@ -166,8 +162,7 @@ def main(fasta_file, barcode_file, mismatches, trunc, trim, output, remove):
     if output != "":
         os.chdir(output)
    
-    while num < len(targets):
-            
+    while num < len(targets):    
         for pattern in targets[num]:
             if '\t' in pattern and len(pattern) >1:
                 tmp = pattern.split('\t')
@@ -210,14 +205,11 @@ def main(fasta_file, barcode_file, mismatches, trunc, trim, output, remove):
         file = open('%s.txt' %barcode, 'w')
         file.write(b_dict[barcode])
         file.close()
-            
     file = open("no_barcode.txt", 'w')
     file.write(no_string)
     file.close()           
     bcode.num_seqs(output)
     print "Complete"
-           
 
 if __name__ == "__main__":
     main(*sys.argv[1:])
-

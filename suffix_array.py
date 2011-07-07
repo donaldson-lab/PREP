@@ -6,14 +6,14 @@ Created on Jun 11, 2010
 import re, sys, os
 from Bio import SeqIO
 import wx
+import sqlite3
 
 class Barcode:
     def __init__self(self, filename=[]):
         self.filename = filename
 
     def read_Barcode_List(self, filename):
-        new_contents = []
-        blist = []
+        new_contents, blist = [], []
         with open(filename) as file:
             for line in file:
                 if not line.strip():
@@ -27,15 +27,26 @@ class Barcode:
 
     def read_Barcode_Entries(self, filename):
         bdict = {}
+        name_list = []
         blist = [seq.partition('\t') for seq in self.read_Barcode_List(filename)]
         for item in blist:
             bdict[item[2]] = item[0]
+        connection = sqlite3.connect('barcodes.db')
+        cursor = connection.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS barcodes (id integer primary key, sequence, barcode_name)''')
+        cursor.execute('''SELECT barcode_name FROM barcodes''')
+        for row in cursor:
+            name_list.append(str(row[0]))
+        for name, bcode in bdict.items():
+            if name not in name_list:
+                t = bcode, name
+                cursor.execute('''INSERT INTO barcodes (id, sequence, barcode_name) VALUES (NULL, ?, ?)''', t)
+        connection.commit()
         return bdict
 
 class SuffixArray():
     def lce(self, string1, int1, string2, int2, mismatches):
-            res = 0
-            mm = 0
+            res, mm = 0, 0
             for i,j in zip(string1[int1:], string2[int2:]):
                 if i == j:
                     res += 1
@@ -58,8 +69,7 @@ class SuffixArray():
         return ta
 
     def findPatterns(self, fasta_file, patterns, truncation, mismatches, trim, index, remove, min_length):
-        num_seqs = 0
-        progressMax = 0
+        num_seqs, progressMax = 0, 0
         output = {}
         output['problem_barcodes'] = []
         output['no_barcode'] = []
@@ -70,15 +80,11 @@ class SuffixArray():
         with open(fasta_file) as f:
             for rec in SeqIO.parse(f, "fasta"):
                 progressMax += 1
-        app = wx.PySimpleApp() #@UnusedVariable
         dialog = wx.ProgressDialog("Barcode Trimming","Time remaining :", progressMax, style=wx.PD_ELAPSED_TIME | wx.PD_REMAINING_TIME)
         with open(fasta_file) as in_handle:
             for rec in SeqIO.parse(in_handle, "fasta"):
-                results = []
-                starts = []
-                ends = []
+                results, starts, ends = [], [], []
                 num_seqs += 1
-                #print num_seqs
                 if num_seqs < progressMax:
                     dialog.Update(num_seqs)
                 else:
@@ -102,9 +108,7 @@ class SuffixArray():
                     if start > 50 and start < length - 50:
                         results.append('middle')
                 if len(results) == 1:
-                    diff = 0
-                    num = 0
-                    prev_end = 0
+                    diff, num, prev_end = 0, 0, 0
                     if remove:
                         for start, end in cuts:
                             if len(sequence[:start-diff]) >= min_length and len(sequence[:end-diff:]) >= min_length:
@@ -139,12 +143,9 @@ class SuffixArray():
                     output['problem_barcodes'] = tmp
             return output
             
-        
     def findPattern(self, sequence, suffix_array, pattern, filename, truncation, mismatches, index):
         n = len(suffix_array)
-        bcodes = []
-        starts = []
-        ends =[]
+        bcodes, starts, ends = [], [], []
         result = False
         if pattern <= suffix_array[1]:
             ans = 1
@@ -179,7 +180,6 @@ class SuffixArray():
                     self.findPattern(sequence, suffix_array, pattern[1:], filename, truncation, mismatches, index)
                 else:
                     result = False
-
         if result == True:
             for m in re.finditer(target, sequence):
                 bcodes.append(filename)
@@ -205,11 +205,9 @@ def main(fasta_file, barcode_file, mismatches, truncation, trim, output, remove,
     patterns = B.read_Barcode_Entries(barcode_file)
     index = 0
     a = SA.findPatterns(sequence, patterns, truncation, mismatches, trim, index, remove, min_length)
-    os.chdir(output)
+    if output != "":
+        os.chdir(output)
     SA.writeOutput(a)
     
 if __name__ == "__main__":
     main(*sys.argv[1:])
-    
-                
-    

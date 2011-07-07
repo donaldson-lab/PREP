@@ -23,11 +23,11 @@ class MainFrame(wx.Frame):
         barcode_panel = wx.Panel(mainPanel) 
         sizer.Add(barcode_panel, 1, wx.EXPAND)
 
-        
         vbox = wx.BoxSizer(wx.VERTICAL)
         self.file_button = wx.Button(barcode_panel, -1, 'Select Sequence File')
         self.barcode_button = wx.Button(barcode_panel, -1, 'Select Barcode File')
         self.add_bc_button = wx.Button(barcode_panel, -1, 'Add Barcode to Database')
+        self.del_bc_button = wx.Button(barcode_panel, -1, 'Delete Barcodes')
         self.submit_button = wx.Button(barcode_panel, -1, 'Submit')
         self.fasta_path_label = wx.StaticText(barcode_panel, -1, 'FASTA filepath:')
         self.barcode_path_label = wx.StaticText(barcode_panel, -1, 'Barcode filepath:')
@@ -67,7 +67,9 @@ class MainFrame(wx.Frame):
         button_box = wx.BoxSizer(wx.HORIZONTAL)
         barcode_box = wx.BoxSizer(wx.VERTICAL)
         barcode_box.AddMany([self.barcode_label, self.barcode_listbox])
-        self.submit_button.Bind(wx.EVT_LEFT_DOWN, self.trim_barcodes)
+        self.submit_button.Bind(wx.EVT_BUTTON, self.trim_barcodes)
+        self.submit_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.submit_sizer.AddMany([self.submit_button, (self.del_bc_button, 0, wx.LEFT, 375)])
 
         fasta_path_box.AddMany([self.fasta_path_label, (self.fasta_path, 0, wx.LEFT, 19)])
         barcode_path_box.AddMany([self.barcode_path_label, (self.barcode_path, 0, wx.LEFT, 10), (self.remove, 0, wx.LEFT, 10)])
@@ -76,28 +78,27 @@ class MainFrame(wx.Frame):
         truncation_box.AddMany([self.truncation_label, (self.truncation, 0, wx.LEFT, 10)])
         trim_box.AddMany([self.trim_label, (self.trim, 0, wx.LEFT, 10)])
         length_box.AddMany([self.length_label, (self.min_length, 0, wx.LEFT, 10)])
-        
         button_box.AddMany([self.file_button, (self.barcode_button, 0, wx.LEFT, 25), (self.add_bc_button, 0, wx.LEFT, 25), (barcode_box, 0, wx.LEFT, 50)])
         
-        vbox.Add(button_box, 0, wx.ALL, 10)
+        vbox.Add(button_box, 0, wx.ALL|wx.EXPAND, 10)
         vbox.Add(fasta_path_box,0, wx.TOP|wx.EXPAND, -280)
-        vbox.Add(barcode_path_box, 1, wx.TOP|wx.EXPAND, -250)
-        vbox.Add(output_box, 1, wx.TOP|wx.EXPAND, -220)
-        vbox.Add(mismatch_box, 0, wx.TOP|wx.EXPAND, -190)
-        vbox.Add(truncation_box, 0, wx.TOP|wx.EXPAND, -160)
-        vbox.Add(trim_box, 0, wx.TOP|wx.EXPAND, -130)
-        vbox.Add(length_box, 0, wx.TOP|wx.EXPAND, -100)
-        vbox.Add(self.submit_button, 0, wx.TOP, -110)
+        vbox.Add(barcode_path_box, 1, wx.TOP|wx.EXPAND, 10)
+        vbox.Add(output_box, 1, wx.TOP|wx.EXPAND, 10)
+        vbox.Add(mismatch_box, 1, wx.TOP|wx.EXPAND, 10)
+        vbox.Add(truncation_box, 1, wx.TOP|wx.EXPAND, 10)
+        vbox.Add(trim_box, 1, wx.TOP|wx.EXPAND, 10)
+        vbox.Add(length_box, 1, wx.TOP|wx.EXPAND, 10)
+        vbox.Add(self.submit_sizer, 1, wx.TOP|wx.EXPAND, 10)
 
-        self.file_button.Bind(wx.EVT_LEFT_DOWN, self.select_fasta)
-        self.barcode_button.Bind(wx.EVT_LEFT_DOWN, self.select_barcodes)
-        self.add_bc_button.Bind(wx.EVT_LEFT_DOWN, self.on_add_barcode)
+        self.file_button.Bind(wx.EVT_BUTTON, self.select_fasta)
+        self.barcode_button.Bind(wx.EVT_BUTTON, self.select_barcodes)
+        self.add_bc_button.Bind(wx.EVT_BUTTON, self.on_add_barcode)
+        self.del_bc_button.Bind(wx.EVT_BUTTON, self.delete_barcodes)
 
         self.remove.SetValue(True)
         self.truncation.SetValue(str(2))
         self.mismatches.SetValue(str(2))
         self.trim.SetValue(str(0))
-
         sizer.Hide(0)
         
         processing_panel = wx.Panel(mainPanel)
@@ -111,18 +112,17 @@ class MainFrame(wx.Frame):
         self.convert_button = wx.Button(processing_panel, -1, 'Convert Illumina')
         self.quality_trim_button = wx.Button(processing_panel, -1, 'FASTQ Sanger Trim')
         #self.quality_filter_button = wx.Button(processing_panel, -1, 'Quality Filter')
-        self.convert_button.Bind(wx.EVT_LEFT_DOWN, self.convert_ill_fasta)
-        self.quality_trim_button.Bind(wx.EVT_LEFT_DOWN, self.fastq_trim)
-        #self.quality_filter_button.Bind(wx.EVT_LEFT_DOWN, self.quality_filter)
+        self.convert_button.Bind(wx.EVT_BUTTON, self.convert_ill_fasta)
+        self.quality_trim_button.Bind(wx.EVT_BUTTON, self.fastq_trim)
+        #self.quality_filter_button.Bind(wx.EVT_BUTTON, self.quality_filter)
         self.fff_button = wx.Button(processing_panel, -1, '454 Trim')
-        self.fff_button.Bind(wx.EVT_LEFT_DOWN, self.fourfivefour_quality)
+        self.fff_button.Bind(wx.EVT_BUTTON, self.fourfivefour_quality)
         self.illumina_quality_button = wx.Button(processing_panel, -1, 'Illumina 1.5+ Trim')
-        self.illumina_quality_button.Bind(wx.EVT_LEFT_DOWN, self.illumina_quality)
+        self.illumina_quality_button.Bind(wx.EVT_BUTTON, self.illumina_quality)
         self.length_label = wx.StaticText(processing_panel, -1, 'Minimum Sequence Length:')
         self.length = wx.TextCtrl(processing_panel, -1, size = (50,20))
         self.length.SetValue(str(20))
         self.threshold.SetValue(str(25))
-        
         
         threshold_box.AddMany([self.threshold_label, (self.threshold, 0, wx.LEFT, 10)])
         length_box.AddMany([(self.length_label), (self.length, 0, wx.LEFT, 10)])
@@ -134,8 +134,6 @@ class MainFrame(wx.Frame):
         vbox2.Add(fff_box, 0, wx.TOP|wx.LEFT, 10)
         vbox2.Add(self.fff_button, 0, wx.TOP|wx.LEFT, 10)
         sizer.Add(processing_panel, 1, wx.EXPAND)
-        
-        
         sizer.Hide(1)
 
         self.Bind(wx.EVT_TOOL, self.onBarcode, id=1)               
@@ -146,9 +144,10 @@ class MainFrame(wx.Frame):
         mainPanel.Sizer = sizer
         barcode_panel.Sizer = vbox
         processing_panel.Sizer = vbox2
-        
 
         self.sb = self.CreateStatusBar()
+        self.SetMinSize(self.GetSize())
+        self.SetMaxSize(self.GetSize())
         self.Centre()
         self.Show(True)
 
@@ -157,8 +156,7 @@ class MainFrame(wx.Frame):
         self.mainPanel.Sizer.Show(0)
         self.mainPanel.Layout()
         event.Skip()
-        
-                
+             
     def onProcessing(self, event):
         self.mainPanel.Sizer.Hide(0)
         self.mainPanel.Sizer.Show(1)
@@ -193,7 +191,12 @@ class MainFrame(wx.Frame):
 
     def trim_barcodes(self, event):
         if str(self.barcode_path.GetValue()) != '':
-            suffix_array.main(str(self.fasta_path.GetValue()), str(self.barcode_path.GetValue()), int(self.mismatches.GetValue()), int(self.truncation.GetValue()), int(self.trim.GetValue()), str(self.output_path.GetValue()), int(self.remove.GetValue()), int(self.min_length.GetValue()))
+            try:
+                suffix_array.main(str(self.fasta_path.GetValue()), str(self.barcode_path.GetValue()), int(self.mismatches.GetValue()), int(self.truncation.GetValue()), int(self.trim.GetValue()), str(self.output_path.GetValue()), int(self.remove.GetValue()), int(self.min_length.GetValue()))
+            except IOError:
+                dlg = wx.MessageDialog(None, "Please enter a valid filepath", "Invalid Filepath")
+                dlg.ShowModal()
+                dlg.Destroy()
         else:
             names = {}
             name_list = []
@@ -210,9 +213,31 @@ class MainFrame(wx.Frame):
                 file.write(str(sorted_names[num]) + '\t' + str(name_list[num]) + '\n')
             file.close()
             barcode_file = os.getcwd() + '/tmp_barcodes.txt'
+            orig_dir = os.getcwd()
             self.barcode_path.SetValue(barcode_file)
-            suffix_array.main(str(self.fasta_path.GetValue()), str(self.barcode_path.GetValue()), int(self.mismatches.GetValue()), int(self.truncation.GetValue()), int(self.trim.GetValue()), str(self.output_path.GetValue()), int(self.remove.GetValue()), int(self.min_length.GetValue()))
-            os.remove('tmp_barcodes.txt')
+            try:
+                suffix_array.main(str(self.fasta_path.GetValue()), str(self.barcode_path.GetValue()), int(self.mismatches.GetValue()), int(self.truncation.GetValue()), int(self.trim.GetValue()), str(self.output_path.GetValue()), int(self.remove.GetValue()), int(self.min_length.GetValue()))
+            except IOError:
+                dlg = wx.MessageDialog(None, "Invalid Filepath")
+                dlg.ShoModal()
+                dlg.Destroy()
+            os.remove(str(orig_dir) + '/tmp_barcodes.txt')
+            
+    def delete_barcodes(self, event):
+        name_list = []
+        names = {}
+        connection = sqlite3.connect('barcodes.db')
+        cursor = connection.cursor()
+        cursor.execute('''SELECT id, barcode_name FROM barcodes''')
+        for row in cursor:
+            name_list.append(row[1])
+            names[row[1]] = row[0]
+        sorted_names = sorted(name_list)
+        for selection in self.barcode_listbox.GetSelections():
+            self.barcode_listbox.Delete(selection)
+            cursor.execute('''DELETE FROM barcodes WHERE id = %d'''%names[sorted_names[selection]])
+        connection.commit()
+        self.Update()
 
     def sorted_dict_values(self, adict):
         items = adict.items()
@@ -284,7 +309,6 @@ class MainFrame(wx.Frame):
             illumina_quality.main(in_file, length)
             
 class db():
-    
     def __init__(self):
         self = self
         
@@ -305,12 +329,11 @@ class AddBarcode(wx.Dialog):
         
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         okButton = wx.Button(self, -1, 'Ok', size=(70, 30))
-        okButton.Bind(wx.EVT_LEFT_DOWN, self.add)
+        okButton.Bind(wx.EVT_BUTTON, self.add)
         closeButton = wx.Button(self, -1, 'Close', size=(70, 30))
-        closeButton.Bind(wx.EVT_LEFT_DOWN, self.close)
+        closeButton.Bind(wx.EVT_BUTTON, self.close)
         hbox.Add(okButton, 1)
         hbox.Add(closeButton, 1, wx.LEFT, 5)
-
         vbox.Add(hbox, 1, wx.ALIGN_CENTER | wx.TOP | wx.BOTTOM, 10)
 
         self.SetSizer(vbox)
@@ -322,7 +345,11 @@ class AddBarcode(wx.Dialog):
         
     def add(self, event):
         connection = sqlite3.connect('barcodes.db')
-        cursor = connection.cursor()    
+        cursor = connection.cursor()
+        cursor.execute('''SELECT barcode_name FROM barcodes''')
+        name_list = []
+        for row in cursor:
+            name_list.append(row[0])
         if str(self.sequence.GetValue()) == 'Barcode Sequence':
             dlg = wx.MessageDialog(self, '', 'Please enter a nucleotide sequence', wx.OK)
             dlg.ShowModal()
@@ -331,10 +358,14 @@ class AddBarcode(wx.Dialog):
             dlg = wx.MessageDialog(self, '', 'Please enter a unique Barcode Name', wx.OK)
             dlg.ShowModal()
         else:
-            t = str(self.sequence.GetValue().upper()), str(self.bc_name.GetValue())
-            cursor.execute('''INSERT INTO barcodes (id, sequence, barcode_name) VALUES (NULL, ?, ?)''', t)
-            connection.commit()
-            self.Close()
+            if str(self.bc_name.GetValue()) not in name_list:
+                t = str(self.sequence.GetValue().upper()), str(self.bc_name.GetValue())
+                cursor.execute('''INSERT INTO barcodes (id, sequence, barcode_name) VALUES (NULL, ?, ?)''', t)
+                connection.commit()
+                self.Close()
+            else:
+                dlg = wx.MessageDialog(self, '', 'Please enter a UNIQUE Barcode Name', wx.OK)
+                dlg.ShowModal()
             
 if __name__ == "__main__":
     if not os.path.exists('barcodes.db'):
