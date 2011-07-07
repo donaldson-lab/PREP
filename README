@@ -10,7 +10,7 @@ Select Sequence File:
 	Select FASTA file using FileDialog Browser
 
 Select Barcode File:
-	Select barcode file using FileDialog Browser.  See section on the barcode file for formatting of file.
+	Select barcode file using FileDialog Browser.  See section on the barcode file for formatting of file.  Barcodes with a name not previously in the database will be added.
 
 FASTA filepath:
 	Specify the filepath of the sequence file.  Use the "Select Sequence File" button to select file using FileDialog Browser
@@ -20,6 +20,9 @@ Barcode filepath:
 
 Add Barcode to Database:
 	Launches a popup box allowing to add a barcode to the database to be saved.  The Barcode Sequence is typed in the first box and the barcode name in the second.  Click OK to store.
+
+Delete Barcodes:
+	Deletes barcodes selected in the listbox from the database.
 
 Output location:
 	Specify the filepath for the pooled barcodes after trimming.
@@ -39,6 +42,9 @@ Minimum Sequence Length (MSL):
 Remove Barcodes Checkbox:
 	If unchecked, sequences will be pooled by barcode, but the barcodes will not be removed from the sequences
 
+Submit:
+	Submit the job to be trimmed with the selected parameters.
+
 The Barcode File:
 
 The format of the Barcode file is a tab-delimited file of barcode sequences and their respective names.  Each line of the file contains a barcode sequence, a tab ('\t') separating the sequence from its identifying name, which is then followed by a return ('\n').  Reverse barcodes should have the same name with an 'r' appended if the sequences are to be pooled together.
@@ -49,7 +55,6 @@ CGTAGTACACTCTAGAGCACTA	BC004
 TAGTGCTCTAGAGTGTACTACG	BC004r
 CGAGCTCTATACGTGTAGTCTC	BC009
 GAGACTACACGTATAGAGCTCG	BC009r
-
 
 
 The "File Processing" Panel:

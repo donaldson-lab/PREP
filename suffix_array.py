@@ -25,7 +25,7 @@ class Barcode:
                 blist.append(tuple[0])
             return blist
 
-    def read_Barcode_Entries(self, filename):
+    def read_Barcode_Entries(self, filename, listbox):
         bdict = {}
         name_list = []
         blist = [seq.partition('\t') for seq in self.read_Barcode_List(filename)]
@@ -41,6 +41,8 @@ class Barcode:
             if name not in name_list:
                 t = bcode, name
                 cursor.execute('''INSERT INTO barcodes (id, sequence, barcode_name) VALUES (NULL, ?, ?)''', t)
+                insert = len(filter(lambda x: x<name, listbox.GetItems()))
+                listbox.Insert(name, insert)
         connection.commit()
         return bdict
 
@@ -198,11 +200,11 @@ class SuffixArray():
                     num += 1
                     f.write('>' + str(key) + '.' + str(num) + '\n' + seq)
                     
-def main(fasta_file, barcode_file, mismatches, truncation, trim, output, remove, min_length):
+def main(fasta_file, barcode_file, mismatches, truncation, trim, output, remove, min_length, listbox):
     SA = SuffixArray()
     B = Barcode()
     sequence = fasta_file
-    patterns = B.read_Barcode_Entries(barcode_file)
+    patterns = B.read_Barcode_Entries(barcode_file, listbox)
     index = 0
     a = SA.findPatterns(sequence, patterns, truncation, mismatches, trim, index, remove, min_length)
     if output != "":
