@@ -5,6 +5,7 @@ Created on Jun 11, 2010
 '''
 import re, sys, os
 from Bio import SeqIO
+from Bio.Seq import Seq
 import wx
 import sqlite3
 
@@ -205,6 +206,12 @@ def main(fasta_file, barcode_file, mismatches, truncation, trim, output, remove,
     B = Barcode()
     sequence = fasta_file
     patterns = B.read_Barcode_Entries(barcode_file, listbox)
+    for name, pattern in patterns.items():
+        r_name = name +'r'
+        r_code = str(Seq(pattern).reverse_complement())
+        patterns[r_name] = r_code
+    print patterns.keys()
+        
     index = 0
     a = SA.findPatterns(sequence, patterns, truncation, mismatches, trim, index, remove, min_length)
     if output != "":

@@ -47,15 +47,11 @@ Submit:
 
 The Barcode File:
 
-The format of the Barcode file is a tab-delimited file of barcode sequences and their respective names.  Each line of the file contains a barcode sequence, a tab ('\t') separating the sequence from its identifying name, which is then followed by a return ('\n').  Reverse barcodes should have the same name with an 'r' appended if the sequences are to be pooled together.
-
+The format of the Barcode file is a tab-delimited file of barcode sequences and their respective names.  Each line of the file contains a barcode sequence, a tab ('\t') separating the sequence from its identifying name, which is then followed by a return ('\n').
 As an example:
 
 CGTAGTACACTCTAGAGCACTA	BC004	
-TAGTGCTCTAGAGTGTACTACG	BC004r
 CGAGCTCTATACGTGTAGTCTC	BC009
-GAGACTACACGTATAGAGCTCG	BC009r
-
 
 The "File Processing" Panel:
 
