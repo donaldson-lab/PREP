@@ -12,7 +12,8 @@ from Bio.SeqIO.FastaIO import FastaWriter
 class MainFrame(wx.Frame):
     def __init__(self, parent, id, title):
         wx.Frame.__init__(self, parent, id, title, size=(725,370)) 
-        self.mainPanel = mainPanel = wx.Panel(self) 
+        self.mainPanel = mainPanel = wx.Panel(self)
+        self.mainPanel.SetBackgroundColour("#B6AFA9")
         sizer = wx.BoxSizer(wx.VERTICAL)
 
         toolbar = self.CreateToolBar()

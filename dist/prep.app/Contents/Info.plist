@@ -22,7 +22,7 @@
 	<key>CFBundleExecutable</key>
 	<string>PREP</string>
 	<key>CFBundleIconFile</key>
-	<string>prep1.icns</string>
+	<string>dna_mag.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.pythonmac.unspecified.PREP</string>
 	<key>CFBundleInfoDictionaryVersion</key>

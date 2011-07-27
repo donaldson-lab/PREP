@@ -9,7 +9,7 @@ from setuptools import setup
 
 APP = ['PREP.py']
 DATA_FILES = ['barcode.png', 'folder.png']
-OPTIONS = {'argv_emulation': True, 'iconfile':'prep1.icns'}
+OPTIONS = {'argv_emulation': True, 'iconfile':'dna_mag.icns'}
 
 setup(
     app=APP,
